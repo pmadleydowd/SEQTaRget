@@ -11,6 +11,7 @@ create.default.covariates <- function(params) {
   # Generate polynomial interaction terms for followup
 
   if (params@followup.include) {
+    cat("RUNNING INTERACTION TERMS\n")
     interaction <- NULL
     interaction_terms <- c()
     for (deg in 1:params@interaction.polynomial) {
