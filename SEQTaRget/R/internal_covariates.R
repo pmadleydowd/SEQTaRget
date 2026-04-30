@@ -10,7 +10,7 @@ create.default.covariates <- function(params) {
   dose <- paste0("dose", c("", params@indicator.squared), collapse = "+")
   # Generate polynomial interaction terms for followup
 
-  if (params@followup.include && !params@followup.spline && !params@followup.class && !is.null(params@interaction.polynomial) && params@interaction.polynomial > 0) {
+  if (params@followup.include && !is.null(params@interaction.polynomial) && params@interaction.polynomial > 0) {
     interaction <- NULL
     interaction_terms <- c()
     for (deg in 1:params@interaction.polynomial) {
