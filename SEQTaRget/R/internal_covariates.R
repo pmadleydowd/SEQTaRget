@@ -8,7 +8,23 @@ create.default.covariates <- function(params) {
   trial <- NULL
   tx_bas <- paste0(params@treatment, params@indicator.baseline)
   dose <- paste0("dose", c("", params@indicator.squared), collapse = "+")
-  interaction <- paste0(tx_bas, "*", "followup")
+  # Generate polynomial interaction terms for followup
+
+  if (params@followup.include && !params@followup.spline && !params@followup.class && !is.null(params@interaction.polynomial) && params@interaction.polynomial > 0) {
+    interaction <- NULL
+    interaction_terms <- c()
+    for (deg in 1:params@interaction.polynomial) {
+      if (deg == 1) {
+        interaction_terms <- c(interaction_terms, paste0(tx_bas, "*followup"))
+      } else {
+        interaction_terms <- c(interaction_terms, paste0(tx_bas, "*I(followup^", deg, ")"))
+      }
+    }
+    interaction <- paste0(interaction_terms, collapse = "+")
+  }
+  else {
+    interaction <- paste0(tx_bas, "*", "followup")
+  }
   interaction.dose <- paste0("followup*", c("dose", "dose_sq"), collapse = "+")
   if (params@hazard) interaction <- interaction.dose <- NULL
   if (!params@km.curves) interaction <- interaction.dose <- NULL

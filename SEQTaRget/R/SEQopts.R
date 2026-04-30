@@ -59,6 +59,7 @@
 #' @param weight.preexpansion Logical: whether weighting should be done on pre-expanded data, default `TRUE`
 #' @param weight.upper Numeric: weights truncated at upper end at this weight, default is `Inf`
 #' @param weighted Logical: whether or not to preform weighted analysis, default is `FALSE`
+#' @param interaction.polynomial Integer: degree of polynomial for treatment-followup interactions in the outcome model when \code{km.curves = TRUE}, (e.g., 3 for tx_bas*followup + tx_bas*I(followup^2) + tx_bas*I(followup^3)), default is 1 (no higher-order interaction)
 #' @returns An object of class 'SEQopts'
 #' @export
 #' @importFrom stats runif
@@ -77,7 +78,8 @@ SEQopts <- function(bootstrap = FALSE, bootstrap.nboot = 100, bootstrap.sample =
                     treat.level = c(0, 1), trial.include = TRUE,
                     visit = NA, visit.denominator = NA, visit.numerator = NA,
                     weight.eligible_cols = c(),
-                    weight.lower = 0, weight.lag_condition = TRUE, weight.p99 = FALSE, weight.preexpansion = TRUE, weight.upper = Inf, weighted = FALSE) {
+                    weight.lower = 0, weight.lag_condition = TRUE, weight.p99 = FALSE, weight.preexpansion = TRUE, weight.upper = Inf, weighted = FALSE,
+                    interaction.polynomial = 1L) {
   # Standardization =============================================================
   parallel <- as.logical(parallel)
   nthreads <- as.integer(nthreads)
@@ -109,6 +111,7 @@ SEQopts <- function(bootstrap = FALSE, bootstrap.nboot = 100, bootstrap.sample =
 
   trial.include <- as.logical(trial.include)
   followup.include <- as.logical(followup.include)
+  interaction.polynomial <- as.integer(interaction.polynomial)
 
   covariates <- gsub("\\s", "", covariates)
   numerator <- gsub("\\s", "", numerator)
@@ -156,6 +159,10 @@ SEQopts <- function(bootstrap = FALSE, bootstrap.nboot = 100, bootstrap.sample =
 
   if (!is.infinite(followup.min) && !is.infinite(followup.max) && followup.min >= followup.max)
     stop("'followup.min' (", followup.min, ") must be less than 'followup.max' (", followup.max, ")")
+
+  if (!is.numeric(interaction.polynomial) || length(interaction.polynomial) != 1 || is.na(interaction.polynomial) || interaction.polynomial < 1 || interaction.polynomial != as.integer(interaction.polynomial)) {
+    stop("interaction.polynomial must be a single positive integer (>=1)")
+  }
 
   plot.title <- as.character(plot.title)
   plot.subtitle <- as.character(plot.subtitle)
@@ -208,6 +215,7 @@ SEQopts <- function(bootstrap = FALSE, bootstrap.nboot = 100, bootstrap.sample =
       weight.eligible_cols = weight.eligible_cols,
       followup.class = followup.class,
       followup.spline = followup.spline,
+      interaction.polynomial = interaction.polynomial,
       plot.title = plot.title,
       plot.subtitle = plot.subtitle,
       plot.labels = plot.labels,
