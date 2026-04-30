@@ -111,6 +111,8 @@ SEQopts <- function(bootstrap = FALSE, bootstrap.nboot = 100, bootstrap.sample =
 
   trial.include <- as.logical(trial.include)
   followup.include <- as.logical(followup.include)
+  followup.spline <- as.logical(followup.spline)
+  followup.class <- as.logical(followup.class)
   interaction.polynomial <- as.integer(interaction.polynomial)
 
   covariates <- gsub("\\s", "", covariates)
